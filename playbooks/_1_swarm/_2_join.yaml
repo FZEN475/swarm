@@ -1,0 +1,81 @@
+---
+
+- name: Master IP
+  ansible.builtin.set_fact:
+    master_ip: "{{ hostvars[groups.control_main[0]]['ansible_default_ipv4']['address'] }}"
+
+- name: Add nodes
+  community.docker.docker_swarm:
+    state: join
+    join_token: "{{ lookup('ansible.builtin.file', '/tmp/manager') }}"
+    remote_addrs: "{{ master_ip }}:2377"
+
+- name: Create etcd cert dir.
+  ansible.builtin.file:
+    path: "/etc/ssl/etcd/"
+    state: directory
+    mode: '0644'
+
+- name: Upload etcd certs.
+  ansible.builtin.copy:
+    src: "/tmp/etcd/{{ item }}"
+    dest: "/etc/ssl/etcd/{{ item }}"
+    mode: '0644'
+  with_items:
+    - "ca_etcd.pem"
+    - "{{ inventory_hostname }}.crt"
+    - "{{ inventory_hostname }}.csr"
+    - "{{ inventory_hostname }}-key.pem"
+    - "{{ inventory_hostname }}-peer.crt"
+    - "{{ inventory_hostname }}-peer.csr"
+    - "{{ inventory_hostname }}-peer-key.pem"
+    - "{{ inventory_hostname }}-peer.pem"
+    - "{{ inventory_hostname }}.pem"
+
+- name: Create balancer cert dir.
+  ansible.builtin.file:
+    path: "/etc/ssl/balancer/"
+    state: directory
+    mode: '0644'
+
+- name: Upload balancer certs.
+  ansible.builtin.copy:
+    src: "/tmp/balancer/{{ item }}"
+    dest: "/etc/ssl/balancer/{{ item }}"
+    force: true
+    mode: '0644'
+  with_items:
+    - "balancer.crt"
+    - "balancer.csr"
+    - "balancer-key.pem"
+    - "client.crt"
+    - "client.csr"
+    - "client.pem"
+    - "client-key.pem"
+    - "balancer.pem"
+
+- name: Upload ca_etcd to balancer.
+  ansible.builtin.copy:
+    src: "/tmp/etcd/{{ item }}"
+    dest: "/etc/ssl/balancer/{{ item }}"
+    mode: '0644'
+  with_items:
+    - "ca_etcd.pem"
+
+- name: Create balancer config dir.
+  ansible.builtin.file:
+    path: "/etc/balancer"
+    state: directory
+    mode: '0644'
+
+- name: Upload balancer config.
+  ansible.builtin.copy:
+    src: "/source/config/load-balancer.conf"
+    dest: "/etc/balancer/load-balancer.conf"
+    mode: '0644'
+
+- name: Create local database dir.
+  ansible.builtin.file:
+    path: "/db/etcd/{{ inventory_hostname }}-etcd"
+    state: directory
+    mode: '0644'

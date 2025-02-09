@@ -1,0 +1,119 @@
+services:
+
+
+
+  #  registry:
+  #    image: registry:2
+  #    hostname: registry
+  #    volumes:
+  #      - registry:/data
+  #    environment:
+  #      EGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY: "/data"
+  #    ports:
+  #      - "5000:5000"
+  #    networks:
+  #      - servers_network
+  #    deploy:
+  #      mode: replicated
+  #      replicas: 1
+  #      placement:
+  #        constraints: [node.role == manager]
+
+
+
+  etcd:
+    image: quay.io/coreos/etcd:v3.5.16-amd64
+    hostname: "{{.Node.Hostname}}-etcd"
+    volumes:
+      - servers_etcd:/data-dir/
+      - certs:/certs
+    environment:
+      ETCD_NAME: '{{.Node.Hostname}}-etcd'
+      ETCD_DATA_DIR: '/data-dir/{{.Node.Hostname}}-etcd'
+      ETCD_WAL_DIR: '/data-dir/{{.Node.Hostname}}-etcd/wal'
+      ETCD_LISTEN_PEER_URLS: 'https://0.0.0.0:2380'
+      ETCD_LISTEN_CLIENT_URLS: 'https://0.0.0.0:2379'
+      # Для кластератребуются статические записи участников
+      ETCD_INITIAL_CLUSTER_STATE: 'new'
+      ETCD_INITIAL_ADVERTISE_PEER_URLS: 'https://{{.Node.Hostname}}-etcd:2380'
+      ETCD_DISCOVERY: 'discovery_url'
+      ETCD_INITIAL_CLUSTER_TOKEN: 'etcd-cluster'
+      ETCD_ADVERTISE_CLIENT_URLS: 'https://{{.Node.Hostname}}-etcd:2379'
+      # Сертификаты безопасности клиентов
+      ETCD_CLIENT_CERT_AUTH: 'true'
+      ETCD_TRUSTED_CA_FILE: '/certs/ca_etcd.pem'
+      ETCD_CERT_FILE: '/certs/{{.Node.Hostname}}.pem'
+      ETCD_KEY_FILE: '/certs/{{.Node.Hostname}}-key.pem'
+      # Сертификаты безопасности узлов etcd
+      ETCD_PEER_CLIENT_CERT_AUTH: 'true'
+      ETCD_PEER_TRUSTED_CA_FILE: '/certs/ca_etcd.pem'
+      ETCD_PEER_CERT_FILE: '/certs/{{.Node.Hostname}}-peer.pem'
+      ETCD_PEER_KEY_FILE: '/certs/{{.Node.Hostname}}-peer-key.pem'
+      # LEVEL
+      ETCD_LOG_LEVEL: 'warn'
+      ETCD_HEARTBEAT_INTERVAL: '500'
+      ETCD_ELECTION_TIMEOUT: '2500'
+      ETCD_EXPERIMENTAL_WARNING_APPLY_DURATION: '500ms' # --experimental-warning-apply-duration
+
+    ports:
+      - "2379:2379"
+    #      - "2380:2380"
+    networks:
+      - servers_network
+    command:
+      - etcd
+    deploy:
+      #      mode: replicated
+      #      replicas: 1
+      #      placement:
+      #        constraints: [node.hostname == control02]
+      mode: global
+      placement:
+        constraints: [node.role == manager]
+
+  balancer:
+    image: nginx:latest
+    hostname: balancer
+    volumes:
+      - balancer-certs:/etc/ssl/certs/
+      - /etc/balancer/load-balancer.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "2381:2381"
+      - "6444:6444"
+    networks:
+      - servers_network
+    #    command: [ nginx-debug, '-g', 'daemon off;' ]
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+
+volumes:
+  certs:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: bind
+      device: "/etc/ssl/etcd/"
+  servers_etcd:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: bind
+      device: "/db/etcd/"
+  balancer-certs:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: bind
+      device: "/etc/ssl/balancer/"
+
+networks:
+  servers_network:
+    name: servers_network
+    external: true
+#    driver: overlay
+#    ipam:
+#      config:
+#        - subnet: 192.168.5.0/24

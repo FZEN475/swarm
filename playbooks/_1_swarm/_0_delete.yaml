@@ -1,0 +1,56 @@
+---
+
+- name: Remove stack
+  community.docker.docker_stack:
+    name: servers
+    state: absent
+  ignore_errors: true
+  retries: 5
+  delay: 1
+  register: tmp
+  until: "tmp.changed == true"
+
+- name: Prune everything
+  community.docker.docker_prune:
+    containers: true
+    images: true
+    networks: true
+    volumes: true
+    builder_cache: true
+
+- name: Delete a network, disconnecting all containers
+  community.docker.docker_network:
+    name: servers_network
+    state: absent
+    force: true
+  ignore_errors: true
+  retries: 5
+  delay: 1
+  register: tmp
+  until: "tmp.changed == true"
+
+- name: Remove a volume
+  community.docker.docker_volume:
+    name: "{{ item }}"
+    state: absent
+  with_items:
+    - "servers_balancer-certs"
+    - "servers_certs"
+    - "servers_etcd"
+  ignore_errors: true
+  retries: 5
+  delay: 1
+  register: tmp
+  until: "tmp.changed == true"
+
+- name: Remove a swarm manager
+  community.docker.docker_swarm:
+    state: absent
+    force: true
+  ignore_errors: true
+
+- name: Restart Docker
+  ansible.builtin.service:
+    name: docker
+    state: restarted
+    enabled: true

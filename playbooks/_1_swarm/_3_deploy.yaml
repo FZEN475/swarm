@@ -1,0 +1,26 @@
+---
+
+- name: Upload compose.yaml
+  ansible.builtin.copy:
+    src: "/source/config/compose.yaml"
+    dest: "/tmp/compose.yaml"
+    mode: '0644'
+
+
+- name: Create discovery url.
+  ansible.builtin.uri:
+    url: "https://discovery.etcd.io/new?size={{ groups.control_all | length }}"
+    return_content: true
+  register: discovery
+
+
+- name: Deploy server stack.
+  community.docker.docker_stack:
+    state: present
+    name: servers
+    compose:
+      - "/tmp/compose.yaml"
+      - services:
+          etcd:
+            environment:
+              ETCD_DISCOVERY: "{{ discovery.content }}"
