@@ -1,0 +1,72 @@
+---
+
+- name: Проверка директории balancer
+  ansible.builtin.file:
+    path: "/etc/balancer"
+    state: directory
+  when: common is true
+
+- name: Копирование load-balancer.conf
+  ansible.builtin.copy:
+    src: "/ansible_root/config/load-balancer.conf"
+    dest: "/etc/balancer/load-balancer.conf"
+  when: common is true
+
+- name: Копирование compose.yaml
+  ansible.builtin.copy:
+    src: "/ansible_root/config/compose.yaml"
+    dest: "/tmp/compose.yaml"
+  when: common is true
+
+- name: Генерация tmp_etcd_share
+  set_fact:
+    tmp_etcd_share: "{{ lookup('ansible.builtin.file', '/run/secrets/etcd_share') | split('\n')}}"
+  when: common is true
+
+- name: Create a volume with options
+  docker_volume:
+    name: servers_etcd
+    driver_options:
+      type: cifs
+      device: //openwrt.home.lan/etcd
+      o: username={{ tmp_etcd_share[0] }},password={{ tmp_etcd_share[1] }},iocharset=utf8,noperm
+  when: common is true
+
+
+- name: Получение ссылки на публичный discovery сервер etcd
+  ansible.builtin.uri:
+    url: "https://discovery.etcd.io/new?size={{ groups.control_all|length }}"
+    return_content: true
+  register: discovery
+  when: common is false
+
+- name: Deploy stack from base compose file and override the web service
+  community.docker.docker_stack:
+    state: present
+    name: servers
+    compose:
+      - "/tmp/compose.yaml"
+      - services:
+          etcd:
+            environment:
+              ETCD_DISCOVERY: "{{ discovery.content }}"
+  when: common is false
+
+
+
+
+
+#
+#
+#
+#
+#
+#- name: Деплой swarm
+#  ansible.builtin.shell: "{{ item }}"
+#  with_items:
+#    - "sed -i \"s|discovery_url|{{ discovery.stdout }}|g\" /mnt/swarm/repo/compose.yml"
+#    - "cat /mnt/swarm/repo/compose.yml"
+#    - "docker stack deploy --detach=false -c /mnt/swarm/repo/compose.yml servers"
+#  args:
+#    executable: /bin/bash
+#  register: swarm_dump

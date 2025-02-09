@@ -1,0 +1,37 @@
+---
+
+- debug: var=ansible_all_ipv4_addresses
+- debug: var=ansible_default_ipv4.address
+
+#- name: Создание мастера swarm
+#  community.docker.docker_swarm:
+#    state: present
+#    advertise_addr: 192.168.2.10:2377
+#  register: swarm_tokens
+#
+#
+#- name: Copy manager token
+#  ansible.builtin.copy:
+#    content: '{{ item.content  }}'
+#    dest: '{{ item.dest  }}'
+#  with_items:
+#    - { content: '{{ swarm_tokens.swarm_facts.JoinTokens.Manager  }}', dest: "/tmp/manager" }
+#    - { content: '{{ swarm_tokens.swarm_facts.JoinTokens.Worker  }}', dest: "/tmp/worker" }
+#
+#- name: Копирование токенов в ansible
+#  ansible.builtin.fetch:
+#    src: "/tmp/{{ item }}"
+#    dest: /tmp/
+#    flat: yes
+#  with_items:
+#    - "manager"
+#    - "worker"
+#
+#- name: Create a network with custom IPAM config
+#  community.docker.docker_network:
+#    name: servers_network
+#    driver: overlay
+#    state: present
+#    ipam_config:
+#      - subnet: 192.168.5.0/24
+

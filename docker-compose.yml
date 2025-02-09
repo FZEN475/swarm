@@ -1,0 +1,14 @@
+
+services:
+  ansible:
+    image: ansible
+    container_name: ansible
+    environment:
+      ANSIBLE_REPO: "https://github.com/FZEN475/swarm.git"
+    secrets:
+      - id_ed25519
+    restart: no
+
+secrets:
+  id_ed25519:
+    file: /root/.ssh/id_ed25519

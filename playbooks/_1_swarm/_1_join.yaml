@@ -1,0 +1,58 @@
+---
+
+- name: Проверка директории сертификатов
+  ansible.builtin.file:
+    path: "/etc/ssl/etcd/"
+    state: directory
+
+- name: Копирование сертификатов
+  ansible.builtin.copy:
+    src: "/tmp/{{item}}"
+    dest: "/etc/ssl/etcd/{{item}}"
+  with_items:
+    - "ca_etcd.pem"
+    - "{{ inventory_hostname }}.crt"
+    - "{{ inventory_hostname }}.csr"
+    - "{{ inventory_hostname }}-key.pem"
+    - "{{ inventory_hostname }}-peer.crt"
+    - "{{ inventory_hostname }}-peer.csr"
+    - "{{ inventory_hostname }}-peer-key.pem"
+    - "{{ inventory_hostname }}-peer.pem"
+    - "{{ inventory_hostname }}.pem"
+
+- name: Проверка директории сертификатов
+  ansible.builtin.file:
+    path: "/etc/ssl/balancer/"
+    state: directory
+
+- name: Копирование сертификатов
+  ansible.builtin.copy:
+    src: "/tmp/{{item}}"
+    dest: "/etc/ssl/balancer/{{item}}"
+    force: true
+  with_items:
+    - "ca_etcd.pem"
+    - "balancer.crt"
+    - "balancer.csr"
+    - "balancer-key.pem"
+    - "client.crt"
+    - "client.csr"
+    - "client.pem"
+    - "client-key.pem"
+    - "balancer.pem"
+
+- name: Проверка директории сертификатов
+  ansible.builtin.file:
+    path: "/etc/balancer"
+    state: directory
+
+- name: Копирование сертификатов
+  ansible.builtin.copy:
+    src: "/ansible_root/config/load-balancer.conf"
+    dest: "/etc/balancer/load-balancer.conf"
+
+- name: Add nodes
+  community.docker.docker_swarm:
+    state: join
+    join_token: "{{ lookup('ansible.builtin.file', '/tmp/manager') }}"
+    remote_addrs: [ '192.168.2.10:2377' ]
