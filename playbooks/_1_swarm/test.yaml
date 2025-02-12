@@ -13,7 +13,7 @@
     servers_list: |
       {{ servers_list|default([]) + [{ "path":"/etc/ssl/etcd/","name":loop_hostname,
         "key_usage":["digitalSignature"],"extended_key_usage":["serverAuth","clientAuth"],
-        "subject_alt_name":"IP:127.0.0.1,IP:192.168.2.2,IP:192.168.2.10,"dns_names",DNS:balancer"}] }}
+        "subject_alt_name":"IP:127.0.0.1,IP:192.168.2.2,IP:192.168.2.10," + dns_names + ",DNS:balancer"}] }}
   loop: "{{ groups.control_all }}"
   loop_control:
     label: "{{ loop_hostname }}"
