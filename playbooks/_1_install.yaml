@@ -11,17 +11,17 @@
   name: Init swarm.
   become: true
   tasks:
-    - name: test.
-      ansible.builtin.include_tasks: ./_1_swarm/test.yaml
-#    - name: Create master, join-tokens.
-#      ansible.builtin.include_tasks: ./tasks/_1_swarm/_1_init.yaml
+#    - name: test.
+#      ansible.builtin.include_tasks: ./_1_swarm/test.yaml
+    - name: Create master, join-tokens.
+      ansible.builtin.include_tasks: ./tasks/_1_swarm/_1_init.yaml
 
-#- hosts: control
-#  become: true
-#  tasks:
-#    - name: Установка swarm.
-#      ansible.builtin.include_tasks: ./tasks/_1_swarm/_2_join.yaml
-#
+- hosts: control
+  become: true
+  tasks:
+    - name: Установка swarm.
+      ansible.builtin.include_tasks: ./tasks/_1_swarm/_2_join.yaml
+
 #- hosts: control_all
 #  become: true
 #  tasks:
@@ -30,8 +30,8 @@
 #      vars:
 #        common: true
 #
-#- hosts: control_main
-#  become: true
-#  tasks:
-#    - name: Deploy stack.
-#      ansible.builtin.include_tasks: ./tasks/_1_swarm/_3_deploy.yaml
+- hosts: control_main
+  become: true
+  tasks:
+    - name: Deploy stack.
+      ansible.builtin.include_tasks: ./tasks/_1_swarm/_3_deploy.yaml

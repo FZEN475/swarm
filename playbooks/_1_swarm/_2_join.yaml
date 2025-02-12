@@ -57,3 +57,7 @@
     src: "/source/config/load-balancer.conf"
     dest: "/etc/balancer/load-balancer.conf"
 
+- name: Проверка директории balancer
+  ansible.builtin.file:
+    path: "/db/etcd/{{ inventory_hostname }}-etcd"
+    state: directory
