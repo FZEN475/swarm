@@ -10,7 +10,7 @@
 
 - name: servers_list
   set_fact:
-    servers_list: {{ servers_list|default([]) + [{ "path":"/etc/ssl/etcd/","name":"loop_hostname"}] }}
+    servers_list: "{{ servers_list|default([]) + [{ \"path\":\"/etc/ssl/etcd/\",\"name\":loop_hostname}] }}"
   loop: "{{ groups.control_all }}"
   loop_control:
     label: "{{ loop_hostname }}"
