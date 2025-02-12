@@ -4,7 +4,7 @@
   tasks:
 
     - name: test.
-      ansible.builtin.include_tasks: ./tasks/_1_swarm/test.yaml
+      ansible.builtin.include_tasks: ./_1_swarm/test.yaml
 #    - name: Create master, join-tokens.
 #      ansible.builtin.include_tasks: ./tasks/_1_swarm/_0_init.yaml
 
