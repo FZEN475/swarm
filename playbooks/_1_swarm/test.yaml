@@ -5,7 +5,7 @@
 - debug: var=groups.control_main
 
 - debug: var=hostvars['control01']['ansible_os_family']
-- debug: var=hostvars['control01']['ansible_default_ipv4']
+- debug: var=hostvars[groups.control_main[0]]['ansible_default_ipv4']['address']
 
 - debug: var=ansible_all_ipv4_addresses
 - debug: var=ansible_default_ipv4.address
