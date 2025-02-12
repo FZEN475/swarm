@@ -1,8 +1,5 @@
 ---
 
-- debug: var=ansible_all_ipv4_addresses
-- debug: var=ansible_default_ipv4.address
-
 - name: Create swarm master
   community.docker.docker_swarm:
     state: present
@@ -129,3 +126,22 @@
     dest: /tmp/etcd
     flat: yes
   with_items: "{{certs.files}}"
+
+- name: Проверка директории balancer
+  ansible.builtin.file:
+    path: "/etc/balancer"
+    state: directory
+
+---
+
+
+
+- name: Проверка директории balancer
+  ansible.builtin.file:
+    path: "/etc/balancer"
+    state: directory
+
+- name: Копирование load-balancer.conf
+  ansible.builtin.copy:
+    src: "/source/config/load-balancer.conf"
+    dest: "/etc/balancer/load-balancer.conf"
