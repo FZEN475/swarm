@@ -3,35 +3,129 @@
 - debug: var=ansible_all_ipv4_addresses
 - debug: var=ansible_default_ipv4.address
 
-#- name: Создание мастера swarm
-#  community.docker.docker_swarm:
-#    state: present
-#    advertise_addr: 192.168.2.10:2377
-#  register: swarm_tokens
-#
-#
-#- name: Copy manager token
-#  ansible.builtin.copy:
-#    content: '{{ item.content  }}'
-#    dest: '{{ item.dest  }}'
-#  with_items:
-#    - { content: '{{ swarm_tokens.swarm_facts.JoinTokens.Manager  }}', dest: "/tmp/manager" }
-#    - { content: '{{ swarm_tokens.swarm_facts.JoinTokens.Worker  }}', dest: "/tmp/worker" }
-#
-#- name: Копирование токенов в ansible
-#  ansible.builtin.fetch:
-#    src: "/tmp/{{ item }}"
-#    dest: /tmp/
-#    flat: yes
-#  with_items:
-#    - "manager"
-#    - "worker"
-#
-#- name: Create a network with custom IPAM config
-#  community.docker.docker_network:
-#    name: servers_network
-#    driver: overlay
-#    state: present
-#    ipam_config:
-#      - subnet: 192.168.5.0/24
+- name: Create swarm master
+  community.docker.docker_swarm:
+    state: present
+    advertise_addr: "{{ ansible_default_ipv4.address }}:2377"
+  register: swarm_tokens
 
+
+- name: Create manager token
+  ansible.builtin.copy:
+    content: '{{ item.content  }}'
+    dest: '{{ item.dest  }}'
+  with_items:
+    - { content: '{{ swarm_tokens.swarm_facts.JoinTokens.Manager  }}', dest: "/tmp/manager" }
+    - { content: '{{ swarm_tokens.swarm_facts.JoinTokens.Worker  }}', dest: "/tmp/worker" }
+
+- name: Copy manager token to ansible
+  ansible.builtin.fetch:
+    src: "/tmp/{{ item }}"
+    dest: /tmp/
+    flat: yes
+  with_items:
+    - "manager"
+    - "worker"
+
+- name: Create a network with custom IPAM config
+  community.docker.docker_network:
+    name: servers_network
+    driver: overlay
+    state: present
+    ipam_config:
+      - subnet: 192.168.5.0/24
+
+- name: Загрузка утилиты etcdctl
+  ansible.builtin.get_url:
+    url: "https://github.com/etcd-io/etcd/releases/download/v3.5.16/etcd-v3.5.16-linux-amd64.tar.gz"
+    dest: "/tmp"
+  register: discovery
+
+- name: Unarchive etcdctl
+  ansible.builtin.unarchive:
+    src: /tmp/etcd-v3.5.16-linux-amd64.tar.gz
+    dest: /tmp
+    remote_src: yes
+
+- name: Copy manager worker
+  ansible.builtin.copy:
+    src: "/tmp/etcd-v3.5.16-linux-amd64/{{item}}"
+    dest: "/usr/bin/{{item}}"
+    remote_src: yes
+  loop:
+    - etcd
+    - etcdctl
+    - etcdutl
+
+---
+
+- name: Tmp_dns_names
+  set_fact:
+    dns_names: "{{ groups.control_all | map('regex_replace', '^(.*)$', 'DNS:\\1-etcd') | join(',') }}"
+
+- name: Cert config for etcd and peers
+  set_fact:
+    cert_servers_conf_list: |
+      {{ cert_servers_conf_list|default([]) + [
+        { "path":"/etc/ssl/etcd/","name":loop_hostname,
+          "key_usage":["digitalSignature"],"extended_key_usage":["serverAuth","clientAuth"],
+          "subject_alt_name":"IP:127.0.0.1,IP:192.168.2.2," + dns_names + ",DNS:balancer"
+        },
+        { "path": "/etc/ssl/etcd/","name": (loop_hostname+"-peer"),
+          "key_usage": [ "digitalSignature" ],"extended_key_usage": [ "serverAuth","clientAuth" ],
+          "subject_alt_name": "IP:127.0.0.1,IP:192.168.2.2," + dns_names + ",DNS:balancer"
+        }]
+      }}
+  loop: "{{ groups.control_all }}"
+  loop_control:
+    label: "{{ loop_hostname }}"
+    loop_var: loop_hostname
+
+- name: Add client and balancer certs configs
+  set_fact:
+    cert_all_conf_list: |
+      {{ cert_servers_conf_list|default([]) + [
+        { "path":"/etc/ssl/etcd/","name":"client",
+          "key_usage":[ "keyEncipherment","dataEncipherment" ],"extended_key_usage":["clientAuth"],
+          "subject_alt_name":""
+        },
+        { "path": "/etc/ssl/balancer/","name": "balancer",
+          "key_usage": [ "digitalSignature" ],"extended_key_usage": [ "serverAuth","clientAuth" ],
+          "subject_alt_name": "IP:127.0.0.1,IP:192.168.2.2," + dns_names + ",DNS:balancer"
+        },
+        { "path":"/etc/ssl/balancer/","name":"client",
+          "key_usage":[ "keyEncipherment","dataEncipherment" ],"extended_key_usage":["clientAuth"],
+          "subject_alt_name":""
+        }]
+      }}
+
+- name: Create crts
+  ansible.builtin.include_tasks: /source/playbooks/library/create_CA.yaml
+  vars:
+    ca: { "path":"/etc/ssl/etcd/","name":"ca_etcd" }
+    list: "{{ cert_all_conf_list }}"
+    renew: false
+
+- name:  find balancer certs
+  ansible.builtin.find:
+    paths: /etc/ssl/balancer/
+  register: certs
+
+- name: Copy certs to ansible
+  ansible.builtin.fetch:
+    src: "{{ item.path }}"
+    dest: /tmp/balancer
+    flat: yes
+  with_items: "{{certs.files}}"
+
+- name:  find etcd certs
+  ansible.builtin.find:
+    paths: /etc/ssl/etcd/
+  register: certs
+
+- name: Copy certs to ansible
+  ansible.builtin.fetch:
+    src: "{{ item.path }}"
+    dest: /tmp/etcd
+    flat: yes
+  with_items: "{{certs.files}}"

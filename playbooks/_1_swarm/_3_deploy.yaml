@@ -56,10 +56,7 @@
 
 
 
-#
-#
-#
-#
+
 #
 #- name: Деплой swarm
 #  ansible.builtin.shell: "{{ item }}"
