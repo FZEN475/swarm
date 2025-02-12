@@ -10,7 +10,6 @@ services:
       SECURE_PATH: ${SECURE_PATH}
       LIBRARY: ${LIBRARY}
       GIT_EXTRA_PARAM: ${GIT_EXTRA_PARAM}
-      ANSIBLE_HOST_KEY_CHECKING: False
     secrets:
       - id_ed25519
     restart: no
