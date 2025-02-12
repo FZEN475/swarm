@@ -7,6 +7,15 @@
   ansible.builtin.debug:
     msg: "{{ dns_names }}"
 
+
+- name: servers_list
+  set_fact:
+    servers_list: {{ servers_list|default([]) + [{ "path":"/etc/ssl/etcd/","name":"loop_hostname"}] }}
+  loop: "{{ groups.control_all }}"
+  loop_control:
+    label: "{{ loop_hostname }}"
+    loop_var: loop_hostname
+
 #- name: servers_list
 #  set_fact:
 #    servers_list: |
@@ -22,10 +31,10 @@
 #  loop_control:
 #    label: "{{ loop_hostname }}"
 #    loop_var: loop_hostname
-#
-#- name: Print servers_list
-#  ansible.builtin.debug:
-#    msg: "{{ servers_list }}"
+
+- name: Print servers_list
+  ansible.builtin.debug:
+    msg: "{{ servers_list }}"
 
 
 #- name: other_list
