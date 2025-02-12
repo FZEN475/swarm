@@ -5,7 +5,7 @@
 #  become: true
 #  tasks:
 #    - name: Delete swarm.
-#      ansible.builtin.include_tasks: ./tasks/_1_swarm/_0_delete.yaml
+#      ansible.builtin.include_tasks: /source/playbooks/_0_delete.yaml
 
 - hosts: control_main
   name: Init swarm.
@@ -14,13 +14,13 @@
 #    - name: test.
 #      ansible.builtin.include_tasks: ./_1_swarm/test.yaml
     - name: Create master, join-tokens.
-      ansible.builtin.include_tasks: ./tasks/_1_swarm/_1_init.yaml
+      ansible.builtin.include_tasks: /source/playbooks/_1_init.yaml
 
 - hosts: control
   become: true
   tasks:
     - name: Установка swarm.
-      ansible.builtin.include_tasks: ./tasks/_1_swarm/_2_join.yaml
+      ansible.builtin.include_tasks: /source/playbooks/_2_join.yaml
 
 #- hosts: control_all
 #  become: true
@@ -34,4 +34,4 @@
   become: true
   tasks:
     - name: Deploy stack.
-      ansible.builtin.include_tasks: ./tasks/_1_swarm/_3_deploy.yaml
+      ansible.builtin.include_tasks: /source/playbooks/_3_deploy.yaml
