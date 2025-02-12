@@ -44,7 +44,7 @@
   ansible.builtin.include_tasks: /source/playbooks/library/create_CA.yaml
   vars:
     ca: { "path":"/etc/ssl/etcd/","name":"ca_etcd" }
-    list: cert_all_conf_list
+    list: {{ cert_all_conf_list }}
     renew: false
 
 
