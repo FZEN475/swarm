@@ -45,7 +45,6 @@
     force: true
     mode: '0644'
   with_items:
-    - "ca_etcd.pem"
     - "balancer.crt"
     - "balancer.csr"
     - "balancer-key.pem"
@@ -54,6 +53,14 @@
     - "client.pem"
     - "client-key.pem"
     - "balancer.pem"
+
+- name: Upload ca_etcd to balancer.
+  ansible.builtin.copy:
+    src: "/tmp/etcd/{{ item }}"
+    dest: "/etc/ssl/balancer/{{ item }}"
+    mode: '0644'
+  with_items:
+    - "ca_etcd.pem"
 
 - name: Create balancer config dir.
   ansible.builtin.file:
