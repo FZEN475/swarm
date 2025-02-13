@@ -8,7 +8,7 @@
 
 - name: Create discovery url.
   ansible.builtin.uri:
-    url: "https://discovery.etcd.io/new?size={{ groups.control_all|length }}"
+    url: "https://discovery.etcd.io/new?size={{ groups.control_all | length }}"
     return_content: true
   register: discovery
 
