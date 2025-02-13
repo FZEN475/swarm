@@ -4,13 +4,13 @@
   ansible.builtin.set_fact:
     master_ip: hostvars[groups.control_main[0]]['ansible_default_ipv4']['address']
 
-- debug: var=hostvars[groups.control_main[0]]['ansible_default_ipv4']['address']
+- debug: var={{ master_ip }}
 
 - name: Add nodes
   community.docker.docker_swarm:
     state: join
     join_token: "{{ lookup('ansible.builtin.file', '/tmp/manager') }}"
-    remote_addrs: ["{{ master_ip }}:2377"]
+    remote_addrs: "{{ master_ip }}:2377"
 
 - name: Create etcd cert dir.
   ansible.builtin.file:
