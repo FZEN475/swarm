@@ -65,11 +65,11 @@
       {{ cert_servers_conf_list|default([]) + [
         { "path":"/etc/ssl/etcd/","name":loop_hostname,
           "key_usage":["digitalSignature"],"extended_key_usage":["serverAuth","clientAuth"],
-          "subject_alt_name": "DNS:balancer," + dns_names
+          "subject_alt_name": "IP:192.168.2.2,DNS:balancer," + dns_names
         },
         { "path": "/etc/ssl/etcd/","name": (loop_hostname+"-peer"),
           "key_usage": [ "digitalSignature" ],"extended_key_usage": [ "serverAuth","clientAuth" ],
-          "subject_alt_name": "DNS:balancer," + dns_names
+          "subject_alt_name": "IP:192.168.2.2,DNS:balancer," + dns_names
         }]
       }}
   loop: "{{ groups.control_all }}"
@@ -87,7 +87,7 @@
         },
         { "path": "/etc/ssl/balancer/","name": "balancer",
           "key_usage": [ "digitalSignature" ],"extended_key_usage": [ "serverAuth","clientAuth" ],
-          "subject_alt_name": "DNS:balancer," + dns_names
+          "subject_alt_name": "IP:192.168.2.2,DNS:balancer," + dns_names
         },
         { "path":"/etc/ssl/balancer/","name":"client",
           "key_usage":[ "keyEncipherment","dataEncipherment" ],"extended_key_usage":["clientAuth"],
