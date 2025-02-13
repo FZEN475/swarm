@@ -1,20 +1,20 @@
 ---
-
 - name: Add nodes
   community.docker.docker_swarm:
     state: join
     join_token: "{{ lookup('ansible.builtin.file', '/tmp/manager') }}"
-    remote_addrs: [ "{{ hostvars[groups.control_main[0]]['ansible_default_ipv4']['address']:2377 }}" ]
+    remote_addrs:  "{{ [ hostvars[groups.control_main[0]]['ansible_default_ipv4']['address']:2377 ] }}"
 
 - name: Create etcd cert dir.
   ansible.builtin.file:
     path: "/etc/ssl/etcd/"
     state: directory
+    mode: '0644'
 
 - name: Upload etcd certs.
   ansible.builtin.copy:
-    src: "/tmp/{{item}}"
-    dest: "/etc/ssl/etcd/{{item}}"
+    src: "/tmp/{{ item }}"
+    dest: "/etc/ssl/etcd/{{ item }}"
     mode: '0644'
   with_items:
     - "ca_etcd.pem"
@@ -31,11 +31,12 @@
   ansible.builtin.file:
     path: "/etc/ssl/balancer/"
     state: directory
+    mode: '0644'
 
 - name: Upload balancer certs.
   ansible.builtin.copy:
-    src: "/tmp/{{item}}"
-    dest: "/etc/ssl/balancer/{{item}}"
+    src: "/tmp/{{ item }}"
+    dest: "/etc/ssl/balancer/{{ item }}"
     force: true
     mode: '0644'
   with_items:
@@ -53,6 +54,7 @@
   ansible.builtin.file:
     path: "/etc/balancer"
     state: directory
+    mode: '0644'
 
 - name: Upload balancer config.
   ansible.builtin.copy:
@@ -64,3 +66,4 @@
   ansible.builtin.file:
     path: "/db/etcd/{{ inventory_hostname }}-etcd"
     state: directory
+    mode: '0644'
