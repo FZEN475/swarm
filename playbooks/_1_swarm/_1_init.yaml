@@ -1,4 +1,3 @@
----
 
 - name: Create swarm master
   community.docker.docker_swarm:

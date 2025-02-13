@@ -51,7 +51,6 @@ services:
       ETCD_PEER_KEY_FILE: '/certs/{{.Node.Hostname}}-peer-key.pem'
       # LEVEL
       ETCD_LOG_LEVEL: 'warn'
-
       ETCD_HEARTBEAT_INTERVAL: '500'
       ETCD_ELECTION_TIMEOUT: '2500'
       ETCD_EXPERIMENTAL_WARNING_APPLY_DURATION: '500ms' # --experimental-warning-apply-duration
