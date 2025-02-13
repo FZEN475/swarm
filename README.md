@@ -15,25 +15,25 @@
 | Библиотеки    | [Library](https://github.com/FZEN475/ansible-library) |         |
 
 ## Этапы
-### [reset]()
+### [reset](https://github.com/FZEN475/swarm/blob/main/playbooks/_1_swarm/_0_reset.yaml)
 * Удаление stack servers.
 * Docker prune.
 * Удаление docker сетей.
 * Удаление docker volumes.
 * Расформирование swarm кластера.
 * Перезапуск docker.
-### [init]()
+### [init](https://github.com/FZEN475/swarm/blob/main/playbooks/_1_swarm/_1_init.yaml)
 * Создание мастера и join ссылок.
 * Создание подсети.
 * Загрузка утилиты etcdctl.
 * Создание сертификатов etcd и загрузка в ansible.
-* Выгрузка [load-balancer.conf]()
-### [join]()
+* Выгрузка [load-balancer.conf](https://github.com/FZEN475/swarm/blob/main/config/load-balancer.conf)
+### [join](https://github.com/FZEN475/swarm/blob/main/playbooks/_1_swarm/_2_join.yaml)
 * Подключение NODE к кластеру swarm.
 * Выгрузка сертификатов etcd.
-* Выгрузка [load-balancer.conf]()
-### [deploy]()
-* Выгрузка [compose.yaml]()
+* Выгрузка [load-balancer.conf](https://github.com/FZEN475/swarm/blob/main/config/load-balancer.conf)
+### [deploy](https://github.com/FZEN475/swarm/blob/main/playbooks/_1_swarm/_3_deploy.yaml)
+* Выгрузка [compose.yaml](https://github.com/FZEN475/swarm/blob/main/config/compose.yaml)
 * Создание ссылки на [discovery](https://discovery.etcd.io/).
 * Развёртывание.
 
