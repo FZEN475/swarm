@@ -14,7 +14,7 @@
 | Образ         | [ansible](https://github.com/FZEN475/ansible-image)   |         |
 | Библиотеки    | [Library](https://github.com/FZEN475/ansible-library) |         |
 
-## Этапы
+## Stages
 ### [reset](https://github.com/FZEN475/swarm/blob/main/playbooks/_1_swarm/_0_reset.yaml)
 * Удаление stack servers.
 * Docker prune.
