@@ -126,6 +126,14 @@
     flat: true
   with_items: "{{ certs.files }}"
 
+- name: Upload ca_etcd to balancer.
+  ansible.builtin.copy:
+    src: "/tmp/etcd/{{ item }}"
+    dest: "/etc/ssl/balancer/{{ item }}"
+    mode: '0644'
+  with_items:
+    - "ca_etcd.pem"
+
 - name: Display paths of all .txt files in dir
   ansible.builtin.debug: msg={{ lookup('ansible.builtin.fileglob', '/tmp/etcd/*') }}
 
