@@ -56,11 +56,11 @@
     - etcdutl
 
 - name: Tmp_dns_names
-  set_fact:
+  ansible.builtin.set_fact:
     dns_names: "{{ groups.control_all | map('regex_replace', '^(.*)$', 'DNS:\\1-etcd') | join(',') }}"
 
 - name: Cert config for etcd and peers
-  set_fact:
+  ansible.builtin.set_fact:
     cert_servers_conf_list: |
       {{ cert_servers_conf_list|default([]) + [
         { "path":"/etc/ssl/etcd/","name":loop_hostname,
@@ -78,7 +78,7 @@
     loop_var: loop_hostname
 
 - name: Add client and balancer certs configs
-  set_fact:
+  ansible.builtin.set_fact:
     cert_all_conf_list: |
       {{ cert_servers_conf_list|default([]) + [
         { "path":"/etc/ssl/etcd/","name":"client",
