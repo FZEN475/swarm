@@ -6,12 +6,12 @@
     join_token: "{{ lookup('ansible.builtin.file', '/tmp/manager') }}"
     remote_addrs: [ "hostvars[groups.control_main[0]]['ansible_default_ipv4']['address']:2377" ]
 
-- name: Проверка директории сертификатов
+- name: Create etcd cert dir.
   ansible.builtin.file:
     path: "/etc/ssl/etcd/"
     state: directory
 
-- name: Копирование сертификатов
+- name: Upload etcd certs.
   ansible.builtin.copy:
     src: "/tmp/{{item}}"
     dest: "/etc/ssl/etcd/{{item}}"
@@ -26,12 +26,12 @@
     - "{{ inventory_hostname }}-peer.pem"
     - "{{ inventory_hostname }}.pem"
 
-- name: Проверка директории сертификатов
+- name: Create balancer cert dir.
   ansible.builtin.file:
     path: "/etc/ssl/balancer/"
     state: directory
 
-- name: Копирование сертификатов
+- name: Upload balancer certs.
   ansible.builtin.copy:
     src: "/tmp/{{item}}"
     dest: "/etc/ssl/balancer/{{item}}"
@@ -47,17 +47,17 @@
     - "client-key.pem"
     - "balancer.pem"
 
-- name: Проверка директории сертификатов
+- name: Create balancer config dir.
   ansible.builtin.file:
     path: "/etc/balancer"
     state: directory
 
-- name: Копирование сертификатов
+- name: Upload balancer config.
   ansible.builtin.copy:
     src: "/source/config/load-balancer.conf"
     dest: "/etc/balancer/load-balancer.conf"
 
-- name: Проверка директории balancer
+- name: Create local database dir.
   ansible.builtin.file:
     path: "/db/etcd/{{ inventory_hostname }}-etcd"
     state: directory

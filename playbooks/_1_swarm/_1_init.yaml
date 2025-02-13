@@ -32,19 +32,19 @@
     ipam_config:
       - subnet: 192.168.5.0/24
 
-- name: Загрузка утилиты etcdctl
+- name: Download etcdctl
   ansible.builtin.get_url:
     url: "https://github.com/etcd-io/etcd/releases/download/v3.5.16/etcd-v3.5.16-linux-amd64.tar.gz"
     dest: "/tmp"
   register: discovery
 
-- name: Unarchive etcdctl
+- name: Unarchived etcdctl
   ansible.builtin.unarchive:
     src: /tmp/etcd-v3.5.16-linux-amd64.tar.gz
     dest: /tmp
     remote_src: yes
 
-- name: Copy manager worker
+- name: Install etcdctl.
   ansible.builtin.copy:
     src: "/tmp/etcd-v3.5.16-linux-amd64/{{item}}"
     dest: "/usr/bin/{{item}}"
@@ -103,7 +103,7 @@
     list: "{{ cert_all_conf_list }}"
     renew: false
 
-- name:  find balancer certs
+- name: Find balancer certs
   ansible.builtin.find:
     paths: /etc/ssl/balancer/
   register: certs
@@ -115,7 +115,7 @@
     flat: yes
   with_items: "{{certs.files}}"
 
-- name:  find etcd certs
+- name: Find etcd certs
   ansible.builtin.find:
     paths: /etc/ssl/etcd/
   register: certs
@@ -127,21 +127,19 @@
     flat: yes
   with_items: "{{certs.files}}"
 
-- name: Проверка директории balancer
+- name: Create local database dir.
   ansible.builtin.file:
     path: "/db/etcd/{{ inventory_hostname }}-etcd"
     state: directory
 
 ---
 
-
-
-- name: Проверка директории balancer
+- name: Create local balancer dir.
   ansible.builtin.file:
     path: "/etc/balancer"
     state: directory
 
-- name: Копирование load-balancer.conf
+- name: Upload load-balancer.conf
   ansible.builtin.copy:
     src: "/source/config/load-balancer.conf"
     dest: "/etc/balancer/load-balancer.conf"

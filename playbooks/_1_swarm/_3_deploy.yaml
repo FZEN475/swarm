@@ -1,19 +1,19 @@
 ---
 
-- name: Копирование compose.yaml
+- name: Upload compose.yaml
   ansible.builtin.copy:
     src: "/source/config/compose.yaml"
     dest: "/tmp/compose.yaml"
 
 
-- name: Получение ссылки на публичный discovery сервер etcd
+- name: Create discovery url.
   ansible.builtin.uri:
     url: "https://discovery.etcd.io/new?size={{ groups.control_all|length }}"
     return_content: true
   register: discovery
 
 
-- name: Deploy stack from base compose file and override the web service
+- name: Deploy server stack.
   community.docker.docker_stack:
     state: present
     name: servers
