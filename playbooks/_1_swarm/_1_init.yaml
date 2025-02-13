@@ -1,19 +1,18 @@
-
+---
 - name: Create swarm master
   community.docker.docker_swarm:
     state: present
     advertise_addr: "{{ ansible_default_ipv4.address }}:2377"
   register: swarm_tokens
 
-
 - name: Create manager token
   ansible.builtin.copy:
-    content: '{{ item.content  }}'
-    dest: '{{ item.dest  }}'
+    content: '{{ item.content }}'
+    dest: '{{ item.dest }}'
     mode: '0644'
   with_items:
-    - { content: '{{ swarm_tokens.swarm_facts.JoinTokens.Manager  }}', dest: "/tmp/manager" }
-    - { content: '{{ swarm_tokens.swarm_facts.JoinTokens.Worker  }}', dest: "/tmp/worker" }
+    - { content: '{{ swarm_tokens.swarm_facts.JoinTokens.Manager }}', dest: "/tmp/manager" }
+    - { content: '{{ swarm_tokens.swarm_facts.JoinTokens.Worker }}', dest: "/tmp/worker" }
 
 - name: Copy manager token to ansible
   ansible.builtin.fetch:

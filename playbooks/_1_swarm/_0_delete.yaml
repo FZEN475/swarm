@@ -4,7 +4,7 @@
   community.docker.docker_stack:
     name: servers
     state: absent
-  ignore_errors: True
+  ignore_errors: true
   retries: 5
   delay: 1
   register: tmp
@@ -23,7 +23,7 @@
     name: servers_network
     state: absent
     force: true
-  ignore_errors: True
+  ignore_errors: true
   retries: 5
   delay: 1
   register: tmp
@@ -37,7 +37,7 @@
     - "servers_balancer-certs"
     - "servers_certs"
     - "servers_etcd"
-  ignore_errors: True
+  ignore_errors: true
   retries: 5
   delay: 1
   register: tmp
