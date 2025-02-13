@@ -47,7 +47,7 @@
   community.docker.docker_swarm:
     state: absent
     force: true
-  ignore_errors: True
+  ignore_errors: true
 
 - name: Restart Docker
   ansible.builtin.service:

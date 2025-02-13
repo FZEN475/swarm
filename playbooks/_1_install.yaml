@@ -23,6 +23,7 @@
       ansible.builtin.include_tasks: /source/playbooks/_1_swarm/_2_join.yaml
 
 - hosts: control_main
+  name: deploy
   become: true
   tasks:
     - name: Deploy stack.
