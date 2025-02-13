@@ -126,6 +126,9 @@
     flat: true
   with_items: "{{ certs.files }}"
 
+- name: Display paths of all .txt files in dir
+  ansible.builtin.debug: msg={{ lookup('ansible.builtin.fileglob', '/tmp/etcd/*') }}
+
 - name: Create local database dir.
   ansible.builtin.file:
     path: "/db/etcd/{{ inventory_hostname }}-etcd"
