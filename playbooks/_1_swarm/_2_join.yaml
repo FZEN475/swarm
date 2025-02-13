@@ -15,6 +15,7 @@
   ansible.builtin.copy:
     src: "/tmp/{{item}}"
     dest: "/etc/ssl/etcd/{{item}}"
+    mode: '0644'
   with_items:
     - "ca_etcd.pem"
     - "{{ inventory_hostname }}.crt"
@@ -36,6 +37,7 @@
     src: "/tmp/{{item}}"
     dest: "/etc/ssl/balancer/{{item}}"
     force: true
+    mode: '0644'
   with_items:
     - "ca_etcd.pem"
     - "balancer.crt"
@@ -56,6 +58,7 @@
   ansible.builtin.copy:
     src: "/source/config/load-balancer.conf"
     dest: "/etc/balancer/load-balancer.conf"
+    mode: '0644'
 
 - name: Create local database dir.
   ansible.builtin.file:

@@ -10,6 +10,7 @@
   ansible.builtin.copy:
     content: '{{ item.content  }}'
     dest: '{{ item.dest  }}'
+    mode: '0644'
   with_items:
     - { content: '{{ swarm_tokens.swarm_facts.JoinTokens.Manager  }}', dest: "/tmp/manager" }
     - { content: '{{ swarm_tokens.swarm_facts.JoinTokens.Worker  }}', dest: "/tmp/worker" }
@@ -48,6 +49,7 @@
     src: "/tmp/etcd-v3.5.16-linux-amd64/{{item}}"
     dest: "/usr/bin/{{item}}"
     remote_src: yes
+    mode: '0644'
   loop:
     - etcd
     - etcdctl
@@ -129,8 +131,6 @@
     path: "/db/etcd/{{ inventory_hostname }}-etcd"
     state: directory
 
----
-
 - name: Create local balancer dir.
   ansible.builtin.file:
     path: "/etc/balancer"
@@ -140,3 +140,4 @@
   ansible.builtin.copy:
     src: "/source/config/load-balancer.conf"
     dest: "/etc/balancer/load-balancer.conf"
+    mode: '0644'

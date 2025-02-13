@@ -4,6 +4,7 @@
   ansible.builtin.copy:
     src: "/source/config/compose.yaml"
     dest: "/tmp/compose.yaml"
+    mode: '0644'
 
 
 - name: Create discovery url.
@@ -23,20 +24,3 @@
           etcd:
             environment:
               ETCD_DISCOVERY: "{{ discovery.content }}"
-
-
-
-
-
-
-
-#
-#- name: Деплой swarm
-#  ansible.builtin.shell: "{{ item }}"
-#  with_items:
-#    - "sed -i \"s|discovery_url|{{ discovery.stdout }}|g\" /mnt/swarm/repo/compose.yml"
-#    - "cat /mnt/swarm/repo/compose.yml"
-#    - "docker stack deploy --detach=false -c /mnt/swarm/repo/compose.yml servers"
-#  args:
-#    executable: /bin/bash
-#  register: swarm_dump
