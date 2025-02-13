@@ -111,8 +111,8 @@
   ansible.builtin.fetch:
     src: "{{ item.path }}"
     dest: /tmp/balancer
-    flat: yes
-  with_items: "{{certs.files}}"
+    flat: true
+  with_items: "{{ certs.files }}"
 
 - name: Find etcd certs
   ansible.builtin.find:
@@ -123,18 +123,20 @@
   ansible.builtin.fetch:
     src: "{{ item.path }}"
     dest: /tmp/etcd
-    flat: yes
-  with_items: "{{certs.files}}"
+    flat: true
+  with_items: "{{ certs.files }}"
 
 - name: Create local database dir.
   ansible.builtin.file:
     path: "/db/etcd/{{ inventory_hostname }}-etcd"
     state: directory
+    mode: '0644'
 
 - name: Create local balancer dir.
   ansible.builtin.file:
     path: "/etc/balancer"
     state: directory
+    mode: '0644'
 
 - name: Upload load-balancer.conf
   ansible.builtin.copy:

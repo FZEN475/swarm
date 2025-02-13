@@ -2,7 +2,9 @@
 
 - name: Master IP
   ansible.builtin.set_fact:
-    master_ip: "hostvars[groups.control_main[0]]['ansible_default_ipv4']['address']"
+    master_ip: hostvars[groups.control_main[0]]['ansible_default_ipv4']['address']
+
+- debug: var=hostvars[groups.control_main[0]]['ansible_default_ipv4']['address']
 
 - name: Add nodes
   community.docker.docker_swarm:
